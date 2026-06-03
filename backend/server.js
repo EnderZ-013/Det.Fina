@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const connectDB = require("./config/db");
 const protect = require("./middleware/authMiddleware");
+const facilityRoutes = require("./routes/facilityRoutes");
 dotenv.config();
 
 connectDB();
@@ -13,6 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+app.use("/api/facilities", facilityRoutes);
 app.get("/", (req, res) => {
   res.send("API is running");
 });
