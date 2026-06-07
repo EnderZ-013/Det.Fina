@@ -12,7 +12,11 @@ function Dashboard() {
   const [price, setPrice] = useState("");
 
   // 👇 USER FROM LOCALSTORAGE
-  const user = JSON.parse(localStorage.getItem("user"));
+  const userData = localStorage.getItem("user");
+
+const user = userData
+  ? JSON.parse(userData)
+  : null;
 
   useEffect(() => {
     const fetchFacilities = async () => {
@@ -58,6 +62,12 @@ function Dashboard() {
   };
 
   const deleteFacility = async (id) => {
+    const confirmDelete =
+    window.confirm(
+      "Are you sure?"
+    );
+
+  if (!confirmDelete) return;
     try {
       await API.delete(`/facilities/${id}`);
 
@@ -156,6 +166,9 @@ function Dashboard() {
       />
 
       {/* LIST */}
+      {filteredFacilities.length === 0 && (
+  <h3>No facilities found</h3>
+)}
       {filteredFacilities.map((facility) => (
         <div key={facility._id} className="facility-card">
           <h3>{facility.name}</h3>
@@ -168,7 +181,9 @@ function Dashboard() {
           <button onClick={() => deleteFacility(facility._id)}>
             Delete
           </button>
+          
         </div>
+        
       ))}
     </div>
   );

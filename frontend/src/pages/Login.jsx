@@ -1,7 +1,7 @@
 import { useState } from "react";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
-
+import "./Login.css";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,36 +34,43 @@ function Login() {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+  <div className="login-container">
+    <h1>
+  Sports Facility
+  <br />
+  Management System
+</h1>
 
-      <form onSubmit={submitHandler}>
-        <div>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+    <form onSubmit={submitHandler}>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) =>
+          setEmail(e.target.value)
+        }
+      />
 
-        <br />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) =>
+          setPassword(e.target.value)
+        }
+      />
 
-        <div>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+      <button type="submit">
+        Login
+      </button>
+    </form>
 
-        <br />
-
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
+    <p>
+      Welcome to the Sport Facility
+      Management System
+    </p>
+  </div>
+);
 }
 
 export default Login;
