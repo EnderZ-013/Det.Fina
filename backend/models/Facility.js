@@ -21,6 +21,10 @@ const facilitySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    status: {
+  type: String,
+  default: "Available",
+},
   },
   {
     timestamps: true,

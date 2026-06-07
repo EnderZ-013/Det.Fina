@@ -11,12 +11,11 @@ function Dashboard() {
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
 
-  // 👇 USER FROM LOCALSTORAGE
-  const userData = localStorage.getItem("user");
+  const totalUsers = 1;
+  const totalBookings = 7;
 
-const user = userData
-  ? JSON.parse(userData)
-  : null;
+  const userData = localStorage.getItem("user");
+  const user = userData ? JSON.parse(userData) : null;
 
   useEffect(() => {
     const fetchFacilities = async () => {
@@ -61,18 +60,17 @@ const user = userData
     }
   };
 
-  const deleteFacility = async (id) => {
-    const confirmDelete =
-    window.confirm(
-      "Are you sure?"
-    );
-
-  if (!confirmDelete) return;
+  const bookFacility = async (facility) => {
     try {
-      await API.delete(`/facilities/${id}`);
+      const { data } = await API.put(`/facilities/${facility._id}`, {
+        ...facility,
+        status: "Booked",
+      });
 
       setFacilities(
-        facilities.filter((facility) => facility._id !== id)
+        facilities.map((f) =>
+          f._id === facility._id ? data : f
+        )
       );
     } catch (error) {
       console.log(error);
@@ -80,18 +78,44 @@ const user = userData
   };
 
   const updateFacility = async (facility) => {
-    const newName = prompt("New facility name:", facility.name);
+    const newName = prompt(
+      "New facility name:",
+      facility.name
+    );
 
     if (!newName) return;
 
     try {
-      const { data } = await API.put(`/facilities/${facility._id}`, {
-        ...facility,
-        name: newName,
-      });
+      const { data } = await API.put(
+        `/facilities/${facility._id}`,
+        {
+          ...facility,
+          name: newName,
+        }
+      );
 
       setFacilities(
-        facilities.map((f) => (f._id === facility._id ? data : f))
+        facilities.map((f) =>
+          f._id === facility._id ? data : f
+        )
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteFacility = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this facility?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      await API.delete(`/facilities/${id}`);
+
+      setFacilities(
+        facilities.filter((f) => f._id !== id)
       );
     } catch (error) {
       console.log(error);
@@ -104,22 +128,59 @@ const user = userData
 
   return (
     <div className="dashboard">
+
+      <div className="navbar">
+        <h2>Admin Panel</h2>
+
+        <div>
+          <button onClick={() => (window.location.href = "/dashboard")}>
+            Dashboard
+          </button>
+
+          <button onClick={() => (window.location.href = "/bookings")}>
+            Bookings
+          </button>
+
+          <button onClick={logoutHandler}>
+            Logout
+          </button>
+        </div>
+      </div>
+
       <h1>Sport Facilities</h1>
 
-      {/* 👇 NEW WELCOME SECTION */}
-      <h2>Welcome {user?.name || "User"} 👋</h2>
+      <h2>Welcome {user?.name || "User"}</h2>
+      <h3>Administrator Dashboard</h3>
+
+      <div className="stats-container">
+        <div className="stat-card">
+          <h3>{facilities.length}</h3>
+          <p>Facilities</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{totalUsers}</h3>
+          <p>Users</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{totalBookings}</h3>
+          <p>Bookings</p>
+        </div>
+      </div>
 
       <p>Manage your sport facilities below</p>
 
-      {/* TOTAL */}
       <p>Total Facilities: {facilities.length}</p>
 
-      {/* LOGOUT */}
       <button className="logout-btn" onClick={logoutHandler}>
         Logout
       </button>
 
-      {/* ADD FACILITY */}
+      <button onClick={() => (window.location.href = "/bookings")}>
+        View Bookings
+      </button>
+
       <form onSubmit={addFacility} className="form-container">
         <input
           type="text"
@@ -152,7 +213,6 @@ const user = userData
         <button type="submit">Add Facility</button>
       </form>
 
-      {/* SEARCH */}
       <input
         type="text"
         placeholder="Search facility..."
@@ -165,10 +225,10 @@ const user = userData
         }}
       />
 
-      {/* LIST */}
       {filteredFacilities.length === 0 && (
-  <h3>No facilities found</h3>
-)}
+        <h3>No facilities found</h3>
+      )}
+
       {filteredFacilities.map((facility) => (
         <div key={facility._id} className="facility-card">
           <h3>{facility.name}</h3>
@@ -176,15 +236,39 @@ const user = userData
           <p>Location: {facility.location}</p>
           <p>Price: €{facility.price}</p>
 
-          <button onClick={() => updateFacility(facility)}>Edit</button>
+          <p className="status">
+            Status:{" "}
+            <span
+              className={
+                !facility.status || facility.status === "Available"
+                  ? "available"
+                  : "booked"
+              }
+            >
+              {!facility.status || facility.status === "Available"
+                ? " 🟢 Available"
+                : " 🔴 Booked"}
+            </span>
+          </p>
+
+          <button onClick={() => updateFacility(facility)}>
+            Edit
+          </button>
 
           <button onClick={() => deleteFacility(facility._id)}>
             Delete
           </button>
-          
+
+          <button onClick={() => bookFacility(facility)}>
+            Book
+          </button>
         </div>
-        
       ))}
+
+      <footer className="footer">
+        Sports Facility Management System © 2026
+      </footer>
+
     </div>
   );
 }
